@@ -25,7 +25,7 @@ Here are the messages deciphered so far:
 
 legend:
 
-- **vv** The selected value (1 or 2 bytes). Range of the value is in parantheses.
+- **vv** The selected value (1 or 2 bytes). The HEX range of the value is in parantheses.
 - **??** Unknown byte. I am not sure of meaning of this byte, it is in the log having various values. The control works when I set the SysEx in Midi Commander to values such as F0 `41 10 00 00 00 00 09 12 20 00 00 04 %V` F7 i.e. not including this byte.
 - **cc** Roland checksum.
 
