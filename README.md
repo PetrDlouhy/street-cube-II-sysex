@@ -165,7 +165,7 @@ f0 41 10 00 00 00 00 09 12 10 00 00 5d vv cc f7      # Peak (00 - 64)
 f0 41 10 00 00 00 00 09 12 10 00 00 5e vv cc f7      # Level (00 - 64)
 ```
 
-# GUIETAR REVERB
+# GUITAR REVERB
 ```
 f0 41 10 00 00 00 00 09 12 10 00 00 2e vv cc f7      # time (s) (00 - 31)
 f0 41 10 00 00 00 00 09 12 10 00 00 2f vv vv cc f7   # pre delay (ms) (00 00 - 01 48)
@@ -192,4 +192,10 @@ f0 41 10 00 00 00 00 09 12 00 00 00 0b vv cc f7      # mic/instrument assign (00
 f0 41 10 00 00 00 00 09 12 00 00 00 0c vv cc f7      # guitar/mic assign (00 - 01)
 f0 41 10 00 00 00 00 09 12 00 00 00 0d vv cc f7      # reverb assign (00 - 01)
 f0 41 10 00 00 00 00 09 12 00 00 00 0e vv cc f7      # i-cube link/aux/bluetooth assign (00 - 01)
+```
+# TUNER
+
+```
+f0 41 10 00 00 00 00 09 12 7f 00 00 02 vv cc f7      # Tuner on/off (00 - 01)
+f0 41 10 00 00 00 00 09 12 10 00 00 68 vv cc f7      # Pitch
 ```
