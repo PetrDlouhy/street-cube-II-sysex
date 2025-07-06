@@ -62,12 +62,18 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 00 00 00 10 | I-Cube Link Loopback | 00-01 | 00=Off, 01=On |
 | 00 00 00 17 | USB Audio Loopback | 00-01 | 00=Off, 01=On |
 
+### Looper Control (02 00 10 xx)
+
+| Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
+|---------|-----------|-------|--------------|
+| 02 00 10 01 | Looper Control | 01-04 | 01=Erase Loop, 02=Start Recording, 03=End Recording, 04=Overdub |
+
 ### Effects & Instruments (10 00 00 xx)
 
 #### General
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 10 00 00 00 | Mic/Inst EQ Type | 00-03 | Type 1, Type 2, Type 3, Type 4 |
+| 10 00 00 00 | Mic/Inst EQ Type | 00-03 | EQ off, speech, vocal, inst |
 | 10 00 00 01 | Mic/Inst Effect Type | 00-05 | Harmony, Chorus, Phaser, Flanger, Tremolo, T.WAH |
 
 #### Mic/Inst Harmony
@@ -216,7 +222,7 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
 | 10 00 00 67 | Guitar Reverb Effect Level | 00-64 | 0-100 |
-| 10 00 00 68 | Tuner Pitch | 00-64 | Pitch adjustment |
+| 10 00 00 68 | Tuner Pitch | 00-64 | 435Hz, 436Hz, 437Hz, 438Hz, 439Hz, 440Hz, 441Hz, 442Hz, 443Hz, 444Hz, 445Hz |
 
 ### Mixer (20 00 00 xx)
 
@@ -227,6 +233,19 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 20 00 00 02 | I-Cube Link/Aux/BT Volume | 00-64 | 0-100 |
 | 20 00 00 03 | I-Cube Link Out Volume | 00-64 | 0-100 |
 | 20 00 00 04 | Master Out Volume | 00-64 | 0-100 |
+
+### EQ & Amp Controls (20 00 20 xx)
+
+| Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
+|---------|-----------|-------|--------------|
+| 20 00 20 01 | Mic/Inst EQ Bass | 00-64 | 1-100 |
+| 20 00 20 02 | Mic/Inst EQ Middle | 00-64 | 1-100 |
+| 20 00 20 03 | Mic/Inst EQ Treble | 00-64 | 1-100 |
+| 20 00 20 04 | Guitar EQ Bass | 00-64 | 1-100 |
+| 20 00 20 05 | Guitar EQ Middle | 00-64 | 1-100 |
+| 20 00 20 06 | Guitar EQ Treble | 00-64 | 1-100 |
+| 20 00 20 07 | Guitar Gain | 00-64 | 1-100 |
+| 20 00 20 0A | Guitar Amp Type | 00-08 | 01=Normal, 02=Bright, 03=Wide, 04=Instrument, 05=Clean, 06=Crunch, 07=Lead, 08=Acoustic Sim, 09=Mic |
 
 ### System Commands (7F xx xx xx)
 
@@ -282,6 +301,23 @@ F0 41 10 00 00 00 00 09 12 20 00 00 04 32 2C F7            # Master volume is 50
 # 00 00 00 01               - Read length (1 byte)
 # 5B                        - Checksum
 # F7                        - SysEx end
+```
+
+### EQ and Amp Control
+```
+# Complete SysEx format:
+F0 41 10 00 00 00 00 09 12 20 00 20 07 50 2F F7    # Set guitar gain to 80
+F0 41 10 00 00 00 00 09 12 20 00 20 0A 05 51 F7    # Set guitar amp to Clean
+F0 41 10 00 00 00 00 09 12 20 00 20 05 40 36 F7    # Set guitar EQ middle to 64
+```
+
+### Looper Control
+```
+# Complete SysEx format:
+F0 41 10 00 00 00 00 09 12 02 00 10 01 02 E3 F7    # Start recording
+F0 41 10 00 00 00 00 09 12 02 00 10 01 03 E2 F7    # End recording
+F0 41 10 00 00 00 00 09 12 02 00 10 01 04 E1 F7    # Overdub
+F0 41 10 00 00 00 00 09 12 02 00 10 01 01 E4 F7    # Erase loop
 ```
 
 ### System Initialization
@@ -369,3 +405,4 @@ The Boss Cube sends identical format messages for both read responses and physic
 - **Important**: Boss Cube doesn't check the checksum (tested on master out and other commands), but requires exact GATT message format including timestamp before final F7
 - Add 100-150ms delays between read requests to avoid overwhelming the device
 - Read responses and physical knob changes use identical message format - distinguish by timing
+- **Recent Discovery**: EQ and Amp controls use address space 20 00 20 xx (discovered via Web Bluetooth logging of unknown notifications)
