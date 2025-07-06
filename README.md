@@ -50,7 +50,7 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 00 00 00 04 | Footswitch 1 Tip | 00-05 | 00=Off, 01=Guitar Effect, 02=Mic/Inst Effect, 03=Delay, 04=Reverb, 05=Looper |
+| 00 00 00 04 | Footswitch 1 Tip | 00-05 | Off, Guitar Effect, Mic/Inst Effect, Delay, Reverb, Looper |
 | 00 00 00 05 | Footswitch 1 Ring | 00-05 | Same as above |
 | 00 00 00 06 | Footswitch 2 Tip | 00-05 | Same as above |
 | 00 00 00 07 | Footswitch 2 Ring | 00-05 | Same as above |
@@ -67,35 +67,35 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 #### General
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 10 00 00 00 | Mic/Inst EQ Type | 00-03 | [Type 1, Type 2, Type 3, Type 4] |
-| 10 00 00 01 | Mic/Inst Effect Type | 00-05 | 00=Harmony, 01=Chorus, 02=Phaser, 03=Flanger, 04=Tremolo, 05=T.WAH |
+| 10 00 00 00 | Mic/Inst EQ Type | 00-03 | Type 1, Type 2, Type 3, Type 4 |
+| 10 00 00 01 | Mic/Inst Effect Type | 00-05 | Harmony, Chorus, Phaser, Flanger, Tremolo, T.WAH |
 
 #### Mic/Inst Harmony
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
 | 10 00 00 0B | Key | 00-01 | 00=Auto, 01=Set |
-| 10 00 00 0C | Key Setup | 00-0B | [C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B] |
+| 10 00 00 0C | Key Setup | 00-0B | C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B |
 | 10 00 00 0D | Accurate | 00-09 | 1-10 |
-| 10 00 00 0E | Voice Assign | 00-03 | 00=Default, 01=Unison/Low/High, 02=Unison/Low/Higher, 03=Low/High/Higher |
+| 10 00 00 0E | Voice Assign | 00-03 | Default, Unison/Low/High, Unison/Low/Higher, Low/High/Higher |
 
 #### Mic/Inst Chorus
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
 | 10 00 00 08 | Low Rate | 00-64 | 0-100 |
 | 10 00 00 09 | Low Depth | 00-64 | 0-100 |
-| 10 00 00 0A | Low Pre Delay | 00-64 | 0-100 |
+| 10 00 00 0A | Low Pre Delay | 00-50 | 0-40ms |
 | 10 00 00 0B | Low Level | 00-64 | 0-100 |
 | 10 00 00 0C | Direct Mix | 00-64 | 0-100 |
 | 10 00 00 0D | High Rate | 00-64 | 0-100 |
 | 10 00 00 0E | High Depth | 00-64 | 0-100 |
-| 10 00 00 0F | High Pre Delay | 00-64 | 0-100 |
+| 10 00 00 0F | High Pre Delay | 00-50 | 0-40ms |
 | 10 00 00 10 | High Level | 00-64 | 0-100 |
-| 10 00 00 11 | Xover Freq | 00-10 | [200Hz, 250Hz, 315Hz, 400Hz, 500Hz, 630Hz, 800Hz, 1.0kHz, 1.25kHz, 1.6kHz, 2.0kHz, 2.5kHz, 3.15kHz, 4.0kHz, 5.0kHz, 6.3kHz, 8.0kHz] |
+| 10 00 00 11 | Xover Freq | 00-10 | 200Hz, 250Hz, 315Hz, 400Hz, 500Hz, 630Hz, 800Hz, 1.0kHz, 1.25kHz, 1.6kHz, 2.0kHz, 2.5kHz, 3.15kHz, 4.0kHz, 5.0kHz, 6.3kHz, 8.0kHz |
 
 #### Mic/Inst Phaser
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 10 00 00 13 | Type | 00-03 | [4stage, 8stage, 12stage, BiPHASE] |
+| 10 00 00 13 | Type | 00-03 | 4stage, 8stage, 12stage, BiPHASE |
 | 10 00 00 14 | Rate | 00-64 | 0-100 |
 | 10 00 00 15 | Depth | 00-64 | 0-100 |
 | 10 00 00 16 | Resonance | 00-64 | 0-100 |
@@ -110,7 +110,7 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 10 00 00 1C | Resonance | 00-64 | 0-100 |
 | 10 00 00 1D | Manual | 00-64 | 0-100 |
 | 10 00 00 1E | Level | 00-64 | 0-100 |
-| 10 00 00 1F | Low Cut | 00-0A | [FLAT, 55Hz, 110Hz, 165Hz, 200Hz, 280Hz, 340Hz, 400Hz, 500Hz, 530Hz, 800Hz] |
+| 10 00 00 1F | Low Cut | 00-0A | FLAT, 55Hz, 110Hz, 165Hz, 200Hz, 280Hz, 340Hz, 400Hz, 500Hz, 530Hz, 800Hz |
 
 #### Mic/Inst Tremolo
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
@@ -133,12 +133,12 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 #### Reverb
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 10 00 00 2D | Type | 00-02 | [ROOM, HALL, PLATE] |
+| 10 00 00 2D | Type | 00-02 | ROOM, HALL, PLATE |
 | 10 00 00 2E | Time | 00-31 | 0.1s-5.0s (0.1s steps) |
 | 10 00 00 2F | Pre-Delay | 00 00-01 48 | 0-200ms (16-bit value) |
 | 10 00 00 31 | Mic/Inst Effect Level | 00-64 | 0-100 |
-| 10 00 00 32 | Low Cut | 00-0C | Frequency in Hz |
-| 10 00 00 33 | High Cut | 00-0A | Frequency in Hz |
+| 10 00 00 32 | Low Cut | 00-0C | FLAT, 50Hz, 63Hz, 80Hz, 100Hz, 125Hz, 160Hz, 200Hz, 250Hz, 315Hz, 400Hz, 500Hz, 630Hz |
+| 10 00 00 33 | High Cut | 00-0A | 1.6kHz, 2.0kHz, 2.5kHz, 3.15kHz, 4.0kHz, 5.0kHz, 6.3kHz, 8.0kHz, 10.0kHz, 12.5kHz, FLAT |
 | 10 00 00 34 | Density | 00-0A | 0-10 |
 | 10 00 00 35 | Knob Assign | 00-01 | 00=Rev Time, 01=FX Level |
 
@@ -148,26 +148,26 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 10 00 00 36 | Clean Type | 00-01 | 0-1 |
 | 10 00 00 37 | Crunch Type | 00-01 | 0-1 |
 | 10 00 00 38 | Lead Type | 00-01 | 0-1 |
-| 10 00 00 39 | Effect Type | 00-04 | 00=Chorus, 01=Phaser, 02=Flanger, 03=Tremolo, 04=T.WAH |
+| 10 00 00 39 | Effect Type | 00-04 | Chorus, Phaser, Flanger, Tremolo, T.WAH |
 
 #### Guitar Chorus
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
 | 10 00 00 3B | Low Rate | 00-64 | 0-100 |
 | 10 00 00 3C | Low Depth | 00-64 | 0-100 |
-| 10 00 00 3D | Low Pre Delay | 00-64 | 0-100 |
+| 10 00 00 3D | Low Pre Delay | 00-50 | 0-40ms |
 | 10 00 00 3E | Low Level | 00-64 | 0-100 |
 | 10 00 00 3F | Direct Mix | 00-64 | 0-100 |
 | 10 00 00 40 | High Rate | 00-64 | 0-100 |
 | 10 00 00 41 | High Depth | 00-64 | 0-100 |
-| 10 00 00 42 | High Pre Delay | 00-64 | 0-100 |
+| 10 00 00 42 | High Pre Delay | 00-50 | 0-40ms |
 | 10 00 00 43 | High Level | 00-64 | 0-100 |
 | 10 00 00 44 | Xover Freq | 00-10 | Same as Mic/Inst Chorus |
 
 #### Guitar Phaser
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 10 00 00 46 | Type | 00-03 | [4stage, 8stage, 12stage, BiPHASE] |
+| 10 00 00 46 | Type | 00-03 | 4stage, 8stage, 12stage, BiPHASE |
 | 10 00 00 47 | Rate | 00-64 | 0-100 |
 | 10 00 00 48 | Depth | 00-64 | 0-100 |
 | 10 00 00 49 | Resonance | 00-64 | 0-100 |
@@ -182,7 +182,7 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 10 00 00 4F | Resonance | 00-64 | 0-100 |
 | 10 00 00 50 | Manual | 00-64 | 0-100 |
 | 10 00 00 51 | Level | 00-64 | 0-100 |
-| 10 00 00 52 | Low Cut | 00-0A | Same as Mic/Inst Flanger |
+| 10 00 00 52 | Low Cut | 00-0A | FLAT, 55Hz, 110Hz, 165Hz, 200Hz, 280Hz, 340Hz, 400Hz, 500Hz, 530Hz, 800Hz |
 
 #### Guitar Tremolo
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
@@ -205,12 +205,12 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 #### Guitar Delay
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 10 00 00 60 | Type | 00-03 | [Digital, Reverse, Analog, Tape Echo] |
+| 10 00 00 60 | Type | 00-03 | Digital, Reverse, Analog, Tape Echo |
 | 10 00 00 61 | Time | 00 00-07 47 | 0-1500ms (16-bit value) |
 | 10 00 00 63 | Feedback | 00-64 | 0-100 |
-| 10 00 00 64 | High Cut | 00-0E | Frequency |
+| 10 00 00 64 | High Cut | 00-0E | 630Hz, 800Hz, 1.0kHz, 1.25kHz, 1.6kHz, 2.0kHz, 2.5kHz, 3.15kHz, 4.0kHz, 5.0kHz, 6.3kHz, 8.0kHz, 10.0kHz, 12.5kHz, FLAT |
 | 10 00 00 65 | Effect Level | 00-64 | 0-100 |
-| 10 00 00 66 | Knob Assign | 00-03 | Function assignment |
+| 10 00 00 66 | Knob Assign | 00-03 | Default, Delay Time, Feedback, Effect Level |
 
 #### Additional
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
