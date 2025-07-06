@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """
-This script controls a Boss Cube II amplifier using a BLE MIDI pedal (EV-1-WL).
+This script is an abandoned prototype for controlling a Boss Cube II amplifier using BLE MIDI pedal (EV-1-WL).
+Now it is replaced by the web-control project: https://github.com/PetrDlouhy/boss-web-control (which works on Android, but not on Linux due to problems with Bluez stack).
+
+It still could be useful for understanding how to control the amplifier via BLE MIDI and how to access it on Linux.
+Proble with Linux at the moment (2025-07-06) is, that the BlueZ stack doesn't recognize the right characteristics of Boss MIDI devices.
+The only option is to use gatttool.
 
 It allows for multi-parameter control, including volume, reverb, and various effects.
 
