@@ -62,12 +62,6 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 00 00 00 10 | I-Cube Link Loopback | 00-01 | 00=Off, 01=On |
 | 00 00 00 17 | USB Audio Loopback | 00-01 | 00=Off, 01=On |
 
-### Looper Control (02 00 10 xx)
-
-| Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
-|---------|-----------|-------|--------------|
-| 02 00 10 01 | Looper Control | 01-04 | 01=Erase Loop, 02=Start Recording, 03=End Recording, 04=Overdub |
-
 ### Effects & Instruments (10 00 00 xx)
 
 #### General
@@ -240,6 +234,12 @@ Only Effect level controls are separate.
 | 20 00 00 03 | I-Cube Link Out Volume | 00-64 | 0-100 |
 | 20 00 00 04 | Master Out Volume | 00-64 | 0-100 |
 
+### Looper Control (20 00 10 xx)
+
+| Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
+|---------|-----------|-------|--------------|
+| 20 00 10 01 | Looper Control | 00-05 | 00=Erase Loop, 01=Paused, 02=Recording, 03=Playing, 04=Overdub, 05=Standby |
+
 ### EQ & Amp Controls (20 00 20 xx)
 
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
@@ -252,6 +252,13 @@ Only Effect level controls are separate.
 | 20 00 20 06 | Guitar EQ Treble | 00-64 | 1-100 |
 | 20 00 20 07 | Guitar Gain | 00-64 | 1-100 |
 | 20 00 20 0A | Guitar Amp Type | 00-09 | 00=Normal, 01=Bright, 02=Wide, 03=Instrument, 04=Clean, 05=Crunch, 06=Lead, 07=Acoustic Sim, 08=Mic |
+
+### Tuner Controls (20 00 30 xx)
+
+| Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
+|---------|-----------|-------|--------------|
+| 20 00 30 01 | Manual Key | 00-0B | C, Db, D, Eb, E, F, Gb, G, Ab, A, Bb, B |
+
 
 ### System Commands (7F xx xx xx)
 
