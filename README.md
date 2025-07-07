@@ -136,17 +136,22 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 10 00 00 2A | Peak | 00-64 | 0-100 |
 | 10 00 00 2B | Level | 00-64 | 0-100 |
 
-#### Reverb
+#### Reverb (shared)
+
+The reverb is actually shared betwen Mic/Inst and Guitar despite the separation in the Editor app.
+Only Effect level controls are separate.
+
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
 | 10 00 00 2D | Type | 00-02 | ROOM, HALL, PLATE |
 | 10 00 00 2E | Time | 00-31 | 0.1s-5.0s (0.1s steps) |
 | 10 00 00 2F | Pre-Delay | 00 00-01 48 | 0-200ms (16-bit value) |
-| 10 00 00 31 | Mic/Inst Effect Level | 00-64 | 0-100 |
+| 10 00 00 31 | Mic/Inst Reverb Effect level | 00-0C | FLAT, 50Hz, 63Hz, 80Hz, 100Hz, 125Hz, 160Hz, 200Hz, 250Hz, 315Hz, 400Hz, 500Hz, 630Hz |
 | 10 00 00 32 | Low Cut | 00-0C | FLAT, 50Hz, 63Hz, 80Hz, 100Hz, 125Hz, 160Hz, 200Hz, 250Hz, 315Hz, 400Hz, 500Hz, 630Hz |
 | 10 00 00 33 | High Cut | 00-0A | 1.6kHz, 2.0kHz, 2.5kHz, 3.15kHz, 4.0kHz, 5.0kHz, 6.3kHz, 8.0kHz, 10.0kHz, 12.5kHz, FLAT |
 | 10 00 00 34 | Density | 00-0A | 0-10 |
 | 10 00 00 35 | Knob Assign | 00-01 | 00=Rev Time, 01=FX Level |
+| 10 00 00 67 | Guitar Reverb Effect Level | 00-64 | 0-100 |
 
 #### Guitar Amp
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
@@ -221,8 +226,9 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 #### Additional
 | Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Parameter | Range | Values/Notes |
 |---------|-----------|-------|--------------|
-| 10 00 00 67 | Guitar Reverb Effect Level | 00-64 | 0-100 |
 | 10 00 00 68 | Tuner Pitch | 00-64 | 435Hz, 436Hz, 437Hz, 438Hz, 439Hz, 440Hz, 441Hz, 442Hz, 443Hz, 444Hz, 445Hz |
+
+| 10 00 00 6B | Harmony value? | 00-64 | 435Hz, 436Hz, 437Hz, 438Hz, 439Hz, 440Hz, 441Hz, 442Hz, 443Hz, 444Hz, 445Hz |
 
 ### Mixer (20 00 00 xx)
 
@@ -245,7 +251,7 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 20 00 20 05 | Guitar EQ Middle | 00-64 | 1-100 |
 | 20 00 20 06 | Guitar EQ Treble | 00-64 | 1-100 |
 | 20 00 20 07 | Guitar Gain | 00-64 | 1-100 |
-| 20 00 20 0A | Guitar Amp Type | 00-08 | 01=Normal, 02=Bright, 03=Wide, 04=Instrument, 05=Clean, 06=Crunch, 07=Lead, 08=Acoustic Sim, 09=Mic |
+| 20 00 20 0A | Guitar Amp Type | 00-09 | 00=Normal, 01=Bright, 02=Wide, 03=Instrument, 04=Clean, 05=Crunch, 06=Lead, 07=Acoustic Sim, 08=Mic |
 
 ### System Commands (7F xx xx xx)
 
