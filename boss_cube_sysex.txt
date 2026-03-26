@@ -4,73 +4,184 @@
 # All SysEx messages follow Roland format:
 #   f0 41 10 00 00 00 00 09 12 [addr4] [data...] [checksum] f7
 #
-# Below, only the 4-byte address and value range are listed.
-# Sample captured frames with checksums are preserved where available.
+# Legend:
+#   ✓  = confirmed by log capture / testing
+#   ~  = inferred from address pattern (not yet confirmed by testing)
+#   ?  = uncertain / needs verification
+#   ⚠  = parser bug — sometimes reports multi-byte garbage values
 #
 # Panel reference (from Roland Editor docs):
 #   MIC/INST channel: [HARMONY] knob = effect, [REVERB] knob = reverb
 #   GUITAR/MIC channel: [CHORUS/DELAY] knob = single shared knob for effect & delay
 #   Knobs can be reassigned to different functions via Editor app.
+#
+# Knobs with no UNKNOWN SysEx when turned (already handled or analog):
+#   Mic/Inst volume (-> 20 00 00 00), Master volume (-> 20 00 00 04),
+#   Amp type (-> 10 00 00 36-38), Looper buttons (-> 00 00 00 0a-0e).
+#   Guitar/Mic gain — no known SysEx address, possibly analog-only.
 
 
 # ===================== MIXER (20 00 00 xx) ===================
+# Address: 20 00 00 xx    Value range in parentheses
 
-20 00 00 00  # Mic/Instrument volume (00 - 64)
-20 00 00 01  # Guitar/Mic volume (00 - 64)
-20 00 00 02  # i-CUBE LINK/AUX/Bluetooth volume (00 - 64)
-20 00 00 03  # i-CUBE LINK OUT volume (00 - 64)
-20 00 00 04  # Master Out volume (00 - 64)
+20 00 00 00  # ✓ Mic/Instrument volume (00 - 64)
+20 00 00 01  # ✓ Guitar/Mic volume (00 - 64)
+20 00 00 02  # ✓ i-CUBE LINK/AUX/Bluetooth volume (00 - 64)
+20 00 00 03  # ✓ i-CUBE LINK OUT volume (00 - 64)
+20 00 00 04  # ✓ Master Out volume (00 - 64)
 
 
 # ===================== SYSTEM (00 00 00 xx) ===================
 
-00 00 00 04  # Foot SW1 Tip assign (00 - 05)
-00 00 00 05  # Foot SW1 Ring assign (00 - 05)
-00 00 00 06  # Foot SW2 Tip assign (00 - 05)
-00 00 00 07  # Foot SW2 Ring assign (00 - 05)
-00 00 00 0a  # Looper Rec Time (00=45s stereo, 01=90s mono)
-00 00 00 0b  # Looper Mic/Inst assign (00=disable, 01=enable)
-00 00 00 0c  # Looper Guitar/Mic assign (00=disable, 01=enable)
-00 00 00 0d  # Looper Reverb assign (00=disable, 01=enable)
-00 00 00 0e  # Looper i-CUBE LINK/AUX/BT assign (00=disable, 01=enable)
-00 00 00 10  # i-CUBE LINK loopback (00=off, 01=on)
-00 00 00 17  # USB Audio loopback (00=off, 01=on)
+00 00 00 04  # ✓ Foot SW1 Tip assign (00 - 05)
+00 00 00 05  # ✓ Foot SW1 Ring assign (00 - 05)
+00 00 00 06  # ✓ Foot SW2 Tip assign (00 - 05)
+00 00 00 07  # ✓ Foot SW2 Ring assign (00 - 05)
+00 00 00 0a  # ✓ Looper Rec Time (00=45s stereo, 01=90s mono)
+00 00 00 0b  # ✓ Looper Mic/Inst assign (00=disable, 01=enable)
+00 00 00 0c  # ✓ Looper Guitar/Mic assign (00=disable, 01=enable)
+00 00 00 0d  # ✓ Looper Reverb assign (00=disable, 01=enable)
+00 00 00 0e  # ✓ Looper i-CUBE LINK/AUX/BT assign (00=disable, 01=enable)
+00 00 00 10  # ✓ i-CUBE LINK loopback (00=off, 01=on)
+00 00 00 17  # ✓ USB Audio loopback (00=off, 01=on)
+00 00 00 19  # ? Unknown system signal (toggles 00/01, seen during Harmony at max)
+
+# Manual tuner key selection (long tuner button press = manual tuning mode)
+20 00 30 00  # ✓ Manual tuner mode (00=chromatic, 01=manual key select)
+20 00 30 02  # ? Manual tuner related (01, seen during manual key selection)
+
+
+# ===================== PHYSICAL PANEL CONTROLS (20 00 20 xx) ===================
+# These addresses reflect the current physical knob/switch positions on the panel.
+# Read-only — the amp sends these when a physical control is moved.
+
+20 00 20 08  # ✓ Guitar/Mic volume knob (00 - 64)
+20 00 20 09  # ✓ Mic/Inst input select (00/01 — toggles between Mic and Inst)
+20 00 20 0b  # ✓ AUX IN volume knob (00 - 64)
+20 00 20 0d  # ✓ Output power mode (00=Eco, 01=Max)
+20 00 20 0e  # ✓ [HARMONY] knob position — Mic/Inst effect level (00 - 64)
+20 00 20 0f  # ✓ [REVERB] knob position — Mic/Inst reverb level (00 - 64)
+20 00 20 10  # ✓ Guitar [REVERB] knob position (00 - 64)
+20 00 20 11  # ✓ [CHORUS/DELAY] knob position — Guitar effect/delay level (00 - 64)
+             #   Single physical knob shared between chorus/FX and delay.
+
+
+# ===================== TUNER ===================
+
+20 00 10 00  # ✓ Tuner on/off (00=off, 01=on)
+7f 00 00 02  # ✓ Tuner streaming flag (00=stopped, 01=streaming data)
+             #   Fires repeatedly while tuner is active.
+             #   Tuner pitch data is sent separately via tuner-specific messages.
 
 
 # ===================== SYSTEM SIGNALS (7f xx xx xx) ===================
 
-7f 01 01 03  # TAP tempo? (seen during delay tap)
-7f 01 02 04  # Effect activate command (always followed by 7f 7f)
+7f 01 01 03  # ? TAP tempo (seen during delay tap)
+7f 01 02 04  # ✓ Effect activate command (always followed by 7f 7f)
+7f 00 05 02  # ? Unknown system signal (value 03, seen during [REVERB] knob turning)
 
 
 # ===========================================================================
-#                    MIC/INST CHANNEL (10 00 00 00-35)
+#                    MIC/INST CHANNEL (10 00 00 00-35, 6a-6b)
 # ===========================================================================
 
-# ===================== MIC/INST EQ ===================
+# ===================== MIC/INST EQ & EFFECT TYPE ===================
 
-10 00 00 00  # EQ Type (00=EQ Off, 01=Speech, 02=Vocal, 03=Inst)
+10 00 00 00  # ✓ EQ Type (00=EQ Off, 01=Speech, 02=Vocal, 03=Inst)
+10 00 00 01  # ✓ Effect Type (00=Harmony, 01=Chorus, 02=Phaser, 03=Flanger, 04=Tremolo, 05=T.WAH)
 
-# ===================== MIC/INST T.WAH ===================
+# ===================== MIC/INST EFFECT ON/OFF SWITCHES ===================
+# For Chorus through T.WAH: on/off address = first_param_address - 1
+# Harmony is special — uses its own on/off at 0x02 and level at 0x6b.
+# Value: 00=off, 01=on
+# Fires automatically when [HARMONY] knob crosses zero threshold.
 
-10 00 00 26  # T.WAH Mode (00=LPF, 01=BPF)
-10 00 00 27  # T.WAH Polarity (00=Down, 01=Up)
-10 00 00 28  # T.WAH Sens (00 - 64)
-10 00 00 29  # T.WAH Frequency (00 - 64)
-10 00 00 2a  # T.WAH Peak (00 - 64)
-10 00 00 2b  # T.WAH Level (00 - 64)
+10 00 00 02  # ✓⚠ Harmony on/off — parser sometimes reports garbage multi-byte values
+10 00 00 07  # ✓⚠ Chorus on/off (before first Chorus param at 0x08) — same parser bug
+10 00 00 12  # ✓ Phaser on/off (before first Phaser param at 0x13)
+10 00 00 19  # ✓ Flanger on/off (before first Flanger param at 0x1A)
+10 00 00 20  # ✓ Tremolo on/off (before first Tremolo param at 0x21)
+10 00 00 25  # ✓ T.WAH on/off (before first T.WAH param at 0x26)
+
+# ===================== MIC/INST HARMONY (effect type 00) ===================
+# Harmony is unique: it has dedicated operational addresses in the 0x6x range
+# for level and voice zone, separate from its config params at 0x0B-0x0E.
+# The [HARMONY] knob sends BOTH 0x6b (effect level) and 20 00 20 0e (knob pos).
+
+10 00 00 6a  # ✓ Harmony voice zone indicator (changes at knob detent thresholds)
+             #   Values seen: 0, 1, 5 — maps to harmony type zones
+             #   (e.g., UNISON / HIGH / HIGHER depending on VOICE ASSIGN setting)
+10 00 00 6b  # ✓ Harmony effect level (00 - 64, mirrors [HARMONY] knob position)
+
+# Harmony configuration params (shared address space with Chorus 0x0B-0x0E):
+10 00 00 0b  # ✓ Harmony: Key (00=Auto, 01=Set)
+10 00 00 0c  # ✓ Harmony: Key Setup (00-0B, maps to C through B)
+10 00 00 0d  # ✓ Harmony: Accurate (00-09, lower = closer to original vocal pitch)
+10 00 00 0e  # ✓ Harmony: Voice Assign (00-03)
+             #   00=DEFAULT (Unison/High/Higher), 01=Unison/Low/High,
+             #   02=Unison/Low/Higher, 03=Low/High/Higher
+
+# ===================== MIC/INST CHORUS (effect type 01) ===================
+# Addresses 0x08-0x11. When Harmony is active, 0x0B-0x0E map to Harmony config.
+
+10 00 00 08  # ✓ Chorus Low Rate (00 - 64)
+10 00 00 09  # ✓ Chorus Low Depth (00 - 64)
+10 00 00 0a  # ✓ Chorus Low Pre Delay (00 - 64)
+10 00 00 0b  # ✓ Chorus Low Level (00 - 64)   [shared with Harmony Key]
+10 00 00 0c  # ✓ Chorus Direct Mix (00 - 64)   [shared with Harmony Key Setup]
+10 00 00 0d  # ✓ Chorus High Rate (00 - 64)    [shared with Harmony Accurate]
+10 00 00 0e  # ✓ Chorus High Depth (00 - 64)   [shared with Harmony Voice Assign]
+10 00 00 0f  # ✓ Chorus High Pre Delay (00 - 64)
+10 00 00 10  # ✓ Chorus High Level (00 - 64)
+10 00 00 11  # ✓ Chorus Xover Frequency (00 - 10)
+
+# ===================== MIC/INST PHASER (effect type 02) ===================
+
+10 00 00 13  # ✓ Phaser Type (00=4Stage, 01=8Stage, 02=12Stage, 03=BiPhase)
+10 00 00 14  # ✓ Phaser Rate (00 - 64)
+10 00 00 15  # ✓ Phaser Depth (00 - 64)
+10 00 00 16  # ✓ Phaser Resonance (00 - 64)
+10 00 00 17  # ✓ Phaser Manual (00 - 64)
+10 00 00 18  # ✓ Phaser Level (00 - 64)
+
+# ===================== MIC/INST FLANGER (effect type 03) ===================
+
+10 00 00 1a  # ✓ Flanger Rate (00 - 64)
+10 00 00 1b  # ✓ Flanger Depth (00 - 64)
+10 00 00 1c  # ✓ Flanger Resonance (00 - 64)
+10 00 00 1d  # ✓ Flanger Manual (00 - 64)
+10 00 00 1e  # ✓ Flanger Level (00 - 64)
+10 00 00 1f  # ✓ Flanger Low Cut (00=Flat, 01-0E=55Hz-800Hz)
+
+# ===================== MIC/INST TREMOLO (effect type 04) ===================
+
+10 00 00 21  # ✓ Tremolo Wave Shape (00 - 64)
+10 00 00 22  # ✓ Tremolo Rate (00 - 64)
+10 00 00 23  # ✓ Tremolo Depth (00 - 64)
+10 00 00 24  # ✓ Tremolo Level (00 - 64)
+
+# ===================== MIC/INST T.WAH (effect type 05) ===================
+
+10 00 00 26  # ✓ T.WAH Mode (00=LPF, 01=BPF)
+10 00 00 27  # ✓ T.WAH Polarity (00=Down, 01=Up)
+10 00 00 28  # ✓ T.WAH Sens (00 - 64)
+10 00 00 29  # ✓ T.WAH Frequency (00 - 64)
+10 00 00 2a  # ✓ T.WAH Peak (00 - 64)
+10 00 00 2b  # ✓ T.WAH Level (00 - 64)
 
 # ===================== REVERB (10 00 00 2c-35) ===================
-# Shared reverb unit — per-channel levels at 0x31 (Mic/Inst) and 0x67 (Guitar).
+# Shared reverb unit — type/time/settings apply to both channels.
+# Per-channel levels at separate addresses (0x31 = Mic/Inst, 0x67 = Guitar).
 
-10 00 00 2d  # Reverb Type (00=Room, 01=Hall, 02=Plate)
-10 00 00 2e  # Reverb Time (00 - 31, maps to 0.1s - 5.0s)
-10 00 00 2f  # Reverb Pre-Delay (2 data bytes: 00 00 - 01 48, maps to 0ms - 200ms)
-10 00 00 31  # Mic/Inst Reverb Level (00 - 64)
-10 00 00 32  # Reverb Low Cut (00=Flat, 01-0C=50Hz-630Hz)
-10 00 00 33  # Reverb High Cut (00-09=1.6kHz-12.5kHz, 0A=Flat)
-10 00 00 34  # Reverb Density (00 - 0A)
-10 00 00 35  # Reverb Knob Assign (00=Rev Time, 01=FX Level)
+10 00 00 2c  # ✓ Reverb on/off (00=off, 01=on) — fires when [REVERB] knob crosses zero
+10 00 00 2d  # ✓ Reverb Type (00=Room, 01=Hall, 02=Plate)
+10 00 00 2e  # ✓ Reverb Time (00 - 31, maps to 0.1s - 5.0s)
+10 00 00 2f  # ✓ Reverb Pre-Delay (2 data bytes: 00 00 - 01 48, maps to 0ms - 200ms)
+10 00 00 31  # ✓ Mic/Inst Reverb Level (00 - 64)
+10 00 00 32  # ✓ Reverb Low Cut (00=Flat, 01-0C=50Hz-630Hz)
+10 00 00 33  # ✓ Reverb High Cut (00-09=1.6kHz-12.5kHz, 0A=Flat)
+10 00 00 34  # ✓ Reverb Density (00 - 0A)
+10 00 00 35  # ✓ Reverb Knob Assign (00=Rev Time, 01=FX Level)
 
 
 # ===========================================================================
@@ -79,96 +190,136 @@
 
 # ===================== GUITAR AMP TYPE ===================
 
-10 00 00 36  # Clean Amp Type (00=Type-A, 01=Type-B)
-10 00 00 37  # Crunch Amp Type (00=Type-A, 01=Type-B)
-10 00 00 38  # Lead Amp Type (00=Type-A, 01=Type-B)
+10 00 00 36  # ✓ Clean Amp Type (00=Type-A, 01=Type-B)
+10 00 00 37  # ✓ Crunch Amp Type (00=Type-A, 01=Type-B)
+10 00 00 38  # ✓ Lead Amp Type (00=Type-A, 01=Type-B)
 
 # ===================== GUITAR CHORUS/FX ===================
+# Guitar effects mirror the Mic/Inst HARMONY/FX types (minus Harmony).
 # Controlled by [CHORUS/DELAY] knob on panel.
 
-10 00 00 39  # Guitar effect type selector
-             #   Used for switching: value 00=Chorus, 01=Phaser, 02=Flanger, 03=Tremolo, 04=T.WAH
-             #   Switch commands also send effect activate (7f 01 02 04 7f 7f)
+10 00 00 39  # ✓ Guitar effect type selector (00=Chorus, 01=Phaser, 02=Flanger, 03=Tremolo, 04=T.WAH)
 
-# ===================== GUITAR CHORUS (type 00) ===================
+# ===================== GUITAR EFFECT ON/OFF SWITCHES ===================
+# Pattern: on/off address = first_param_address - 1
+# Value: 00=off, 01=on
 
-10 00 00 3b  # Chorus Low Rate (00 - 64)
-10 00 00 3c  # Chorus Low Depth (00 - 64)
-10 00 00 3d  # Chorus Low Pre Delay (00 - 64)
-10 00 00 3e  # Chorus Low Level (00 - 64)
-10 00 00 3f  # Chorus Direct Mix (00 - 64)
-10 00 00 40  # Chorus High Rate (00 - 64)
-10 00 00 41  # Chorus High Depth (00 - 64)
-10 00 00 42  # Chorus High Pre Delay (00 - 64)
-10 00 00 43  # Chorus High Level (00 - 64)
-10 00 00 44  # Chorus Xover Frequency (00 - 10)
+10 00 00 3a  # ✓ Chorus on/off
+10 00 00 45  # ✓ Phaser on/off
+10 00 00 4c  # ✓ Flanger on/off
+10 00 00 53  # ✓ Tremolo on/off
+10 00 00 58  # ✓ T.WAH on/off
 
-# ===================== GUITAR PHASER (type 01) ===================
+# ===================== GUITAR CHORUS (effect type 00) ===================
 
-10 00 00 46  # Phaser Type (00 - 03)
-10 00 00 47  # Phaser Rate (00 - 64)
-10 00 00 48  # Phaser Depth (00 - 64)
-10 00 00 49  # Phaser Resonance (00 - 64)
-10 00 00 4a  # Phaser Manual (00 - 64)
-10 00 00 4b  # Phaser Level (00 - 64)
+10 00 00 3b  # ✓ Chorus Low Rate (00 - 64)
+10 00 00 3c  # ✓ Chorus Low Depth (00 - 64)
+10 00 00 3d  # ✓ Chorus Low Pre Delay (00 - 64)
+10 00 00 3e  # ✓ Chorus Low Level (00 - 64)
+10 00 00 3f  # ✓ Chorus Direct Mix (00 - 64)
+10 00 00 40  # ✓ Chorus High Rate (00 - 64)
+10 00 00 41  # ✓ Chorus High Depth (00 - 64)
+10 00 00 42  # ✓ Chorus High Pre Delay (00 - 64)
+10 00 00 43  # ✓ Chorus High Level (00 - 64)
+10 00 00 44  # ✓ Chorus Xover Frequency (00 - 10, maps to 100Hz-4.00kHz)
 
-# ===================== GUITAR FLANGER (type 02) ===================
+# ===================== GUITAR PHASER (effect type 01) ===================
 
-10 00 00 4d  # Flanger Rate (00 - 64)
-10 00 00 4e  # Flanger Depth (00 - 64)
-10 00 00 4f  # Flanger Resonance (00 - 64)
-10 00 00 50  # Flanger Manual (00 - 64)
-10 00 00 51  # Flanger Level (00 - 64)
-10 00 00 52  # Flanger Low Cut (00 - ??)
+10 00 00 46  # ✓ Phaser Type (00=4Stage, 01=8Stage, 02=12Stage, 03=BiPhase)
+10 00 00 47  # ✓ Phaser Rate (00 - 64)
+10 00 00 48  # ✓ Phaser Depth (00 - 64)
+10 00 00 49  # ✓ Phaser Resonance (00 - 64)
+10 00 00 4a  # ✓ Phaser Manual (00 - 64)
+10 00 00 4b  # ✓ Phaser Level (00 - 64)
 
-# ===================== GUITAR TREMOLO (type 03) ===================
+# ===================== GUITAR FLANGER (effect type 02) ===================
 
-10 00 00 54  # Tremolo Wave Shape (00 - 64)
-10 00 00 55  # Tremolo Rate (00 - 64)
-10 00 00 56  # Tremolo Depth (00 - 64)
-10 00 00 57  # Tremolo Level (00 - 64)
+10 00 00 4d  # ✓ Flanger Rate (00 - 64)
+10 00 00 4e  # ✓ Flanger Depth (00 - 64)
+10 00 00 4f  # ✓ Flanger Resonance (00 - 64)
+10 00 00 50  # ✓ Flanger Manual (00 - 64)
+10 00 00 51  # ✓ Flanger Level (00 - 64)
+10 00 00 52  # ✓ Flanger Low Cut (00=Flat, 01-0E=55Hz-800Hz)
 
-# ===================== GUITAR T.WAH (type 04) ===================
+# ===================== GUITAR TREMOLO (effect type 03) ===================
 
-10 00 00 59  # T.WAH Mode (00 - 01)
-10 00 00 5a  # T.WAH Polarity (00 - 01)
-10 00 00 5b  # T.WAH Sens (00 - 64)
-10 00 00 5c  # T.WAH Frequency (00 - 64)
-10 00 00 5d  # T.WAH Peak (00 - 64)
-10 00 00 5e  # T.WAH Level (00 - 64)
+10 00 00 54  # ✓ Tremolo Wave Shape (00 - 64)
+10 00 00 55  # ✓ Tremolo Rate (00 - 64)
+10 00 00 56  # ✓ Tremolo Depth (00 - 64)
+10 00 00 57  # ✓ Tremolo Level (00 - 64)
+
+# ===================== GUITAR T.WAH (effect type 04) ===================
+
+10 00 00 59  # ✓ T.WAH Mode (00=LPF, 01=BPF)
+10 00 00 5a  # ✓ T.WAH Polarity (00=Down, 01=Up)
+10 00 00 5b  # ✓ T.WAH Sens (00 - 64)
+10 00 00 5c  # ✓ T.WAH Frequency (00 - 64)
+10 00 00 5d  # ✓ T.WAH Peak (00 - 64)
+10 00 00 5e  # ✓ T.WAH Level (00 - 64)
 
 # ===================== GUITAR DELAY ===================
 
-10 00 00 60  # Delay Type (00=Digital, 01=Reverse, 02=Analog, 03=Tape Echo)
-10 00 00 61  # Delay Time (2 data bytes: 00 00 - 07 47, maps to 1ms - 1000ms)
-10 00 00 63  # Delay Feedback (00 - 64)
-10 00 00 64  # Delay High Cut (00 - 0E)
-10 00 00 65  # Delay Effect Level (00 - 64)
-10 00 00 66  # Delay Knob Assign (00 - 03)
-
-# ===================== GUITAR REVERB ===================
-
-10 00 00 67  # Guitar Reverb Level (00 - 64)
+10 00 00 60  # ✓ Delay Type (00=Digital, 01=Reverse, 02=Analog, 03=Tape Echo)
+10 00 00 61  # ✓ Delay Time (2 data bytes: 00 00 - 07 47, maps to 1ms - 1000ms)
+10 00 00 63  # ✓ Delay Feedback (00 - 64)
+10 00 00 64  # ✓ Delay High Cut (00-0D=630Hz-12.5kHz, 0E=Flat)
+10 00 00 65  # ✓ Delay Effect Level (00 - 78, i.e. 0-120)
+10 00 00 66  # ✓ Delay Knob Assign (00=Default, 01=Delay Time, 02=Feedback, 03=FX Level)
+10 00 00 67  # ✓ Guitar Reverb Level (00 - 64)
+10 00 00 68  # ✓ Tuner Reference Pitch (maps to 435Hz - 445Hz)
+10 00 00 69  # ✓ Guitar Reverb on/off (00=off, 01=on) — fires when guitar [REVERB] knob crosses zero
 
 
 # ===========================================================================
-#                    EFFECT SWITCH CAPTURED FRAMES
+#                    ADDRESS MAP SUMMARY
 # ===========================================================================
-# These are full SysEx frames captured during effect switching.
-# Address 10 00 00 39 = effect type selector, followed by activate command.
-
-# Switch to chorus:
-# f0 41 10 00 00 00 00 09 12 10 00 00 39 00 37 8d f7
-# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c 97 f7
-
-# Switch to phaser:
-# f0 41 10 00 00 00 00 09 12 10 00 00 39 01 36 e4 f7
-# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c f1 f7
-
-# Switch to tremolo:
-# f0 41 10 00 00 00 00 09 12 10 00 00 39 03 34 f8 f7
-# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c fe f7
-
-# Switch to T.WAH:
-# f0 41 10 00 00 00 00 09 12 10 00 00 39 04 33 c4 f7
-# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c cd f7
+#
+# 00 00 00 xx  — System settings (foot switch, looper, loopback)
+# 10 00 00 xx  — Effect parameters:
+#                  00:    Mic/Inst EQ type
+#                  01:    Mic/Inst effect type selector
+#                  02:    Harmony on/off ✓⚠
+#                  07:    Chorus on/off ✓⚠
+#                  08-11: Mic/Inst Chorus params (0B-0E shared with Harmony config)
+#                  12:    Phaser on/off ✓
+#                  13-18: Mic/Inst Phaser params
+#                  19:    Flanger on/off ✓
+#                  1a-1f: Mic/Inst Flanger params
+#                  20:    Tremolo on/off ✓
+#                  21-24: Mic/Inst Tremolo params
+#                  25:    T.WAH on/off ✓
+#                  26-2b: Mic/Inst T.WAH params
+#                  2c:    Reverb on/off ✓
+#                  2d-35: Reverb params (shared unit, per-ch levels at 31/67)
+#                  36-38: Guitar amp types
+#                  39:    Guitar effect type selector
+#                  3a-44: Guitar Chorus block (3a=on/off ✓)
+#                  45-4b: Guitar Phaser block (45=on/off ✓)
+#                  4c-52: Guitar Flanger block (4c=on/off ✓)
+#                  53-57: Guitar Tremolo block (53=on/off ✓)
+#                  58-5e: Guitar T.WAH block (58=on/off ✓)
+#                  60-66: Guitar Delay
+#                  67:    Guitar Reverb Level
+#                  68:    Tuner pitch
+#                  69:    Guitar Reverb on/off ✓
+#                  6a:    Harmony voice zone indicator ✓
+#                  6b:    Harmony effect level ✓
+# 20 00 00 xx  — Mixer levels
+# 20 00 10 xx  — Tuner (00=on/off)
+# 20 00 20 xx  — Physical panel controls (knob positions, switches)
+#                  08: Guitar volume, 09: Mic/Inst select, 0b: AUX IN volume,
+#                  0d: Power mode, 0e: [HARMONY], 0f: Mic/Inst [REVERB],
+#                  10: Guitar [REVERB], 11: [CHORUS/DELAY]
+# 20 00 30 xx  — Manual tuner mode (chromatic vs manual key select)
+# 7f xx xx xx  — System commands (effect activate, tap, tuner stream)
+#
+# On/off switch pattern: address = first_parameter_address - 1
+#   Confirmed for all 5 mic/inst effects (Chorus-T.WAH) and all 5 guitar effects.
+#   Harmony is the exception — uses 0x02 instead.
+#   Reverb on/off at 0x2c also follows this pattern (before 0x2d).
+#
+# Known parser bugs (⚠):
+#   Addresses 0x02 (Harmony on/off) and 0x07 (Chorus on/off) sometimes report
+#   multi-byte garbage values (e.g. 571903754, 257, 13698) instead of 0/1.
+#   All other on/off switches report clean 0/1 values.
+#   Likely a SysEx parsing issue with multi-byte payloads at these addresses.

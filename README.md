@@ -54,7 +54,7 @@ F0 41 10 00 00 00 00 09 [CMD] [ADDRESS] [VALUE] [CHECKSUM] F7
 | 00 00 00 05 | Footswitch 1 Ring | 00-05 | Same as above |
 | 00 00 00 06 | Footswitch 2 Tip | 00-05 | Same as above |
 | 00 00 00 07 | Footswitch 2 Ring | 00-05 | Same as above |
-| 00 00 00 0A | Looper Rec Time | 00-01 | 00=Normal, 01=Long |
+| 00 00 00 0A | Looper Rec Time | 00-01 | 00=45s/Stereo, 01=90s/Mono |
 | 00 00 00 0B | Looper Mic/Inst Assign | 00-01 | 00=Off, 01=On |
 | 00 00 00 0C | Looper Guitar/Mic Assign | 00-01 | 00=Off, 01=On |
 | 00 00 00 0D | Looper Reverb Assign | 00-01 | 00=Off, 01=On |
@@ -266,8 +266,73 @@ Only Effect level controls are separate.
 |---------|-----------|-------|--------------|
 | 7F 00 00 01 | Notification Control | 00-01 | 00=Disable, 01=Enable continuous notifications |
 | 7F 00 00 02 | Tuner Control | 00-01 | 00=Off, 01=On |
+| 7F 00 03 00 | Tuner Data | 6 bytes | Real-time tuner pitch data (read-only) |
 | 7F 01 01 03 | Delay TAP | Variable | TAP tempo function |
 | 7F 01 02 04 | Effect Activation | 7F 7F | Apply changes command |
+
+#### Tuner Data Format (7F 00 03 00)
+
+When the tuner is enabled (`7F 00 00 02 = 01`), the Boss Cube continuously streams 6-byte tuner data containing real-time pitch information. This data can be read but not written.
+
+**Data Structure:**
+```
+Byte 0: Base frequency/note information
+Byte 1: Cents deviation (high byte) 
+Byte 2: Cents deviation (low byte)
+Byte 3: Unknown
+Byte 4: Unknown
+Byte 5: Unknown
+```
+
+**Decoding Algorithm:**
+
+1. **No Signal Detection:**
+   ```
+   if all bytes == [00 00 00 00 00 00]: No signal detected
+   ```
+
+2. **Cents Deviation Calculation:**
+   ```
+   rawTunerValue = (byte1 << 4) | byte2     // 6-bit value (byte1: 0-2, byte2: 0-15)
+   centsDeviation = (rawTunerValue - 19) * 3 // ±50¢ range (center = 19)
+   ```
+
+3. **Frequency Estimation:**
+   ```
+   baseFreq = 220.0  // A3 reference
+   frequencyMultiplier = 2^((byte0 - 57) / 12)
+   frequency = baseFreq * frequencyMultiplier + (byte3 * 0.1)
+   ```
+
+4. **Note Detection:**
+   ```
+   noteNumber = round(12 * log2(frequency / 440) + 69)
+   note = noteNames[noteNumber % 12]  // C, C#, D, D#, E, F, F#, G, G#, A, A#, B
+   octave = floor(noteNumber / 12) - 1
+   ```
+
+**Example Data:**
+```
+# E4 perfect tune:
+[40 01 03 00 00 00] → "E4 329.6Hz 0¢ (In Tune)" (rawValue = 19, center)
+
+# E4 slightly flat:
+[40 01 02 00 00 00] → "E4 329.4Hz -3¢ (In Tune)" (rawValue = 18, within ±3¢)
+
+# E4 clearly flat:
+[40 01 01 00 00 00] → "E4 329.1Hz -6¢ (Flat)" (rawValue = 17)
+
+# No signal:
+[00 00 00 00 00 00] → "No Signal"
+```
+
+**Implementation Notes:**
+- Tuner data streams continuously when tuner is active
+- Byte1 uses only 2 bits (0-2), byte2 uses only 4 bits (0-15)
+- Combined 6-bit value gives ~64 possible tuning positions
+- Center tuning value is 19 (rawTunerValue), giving 0¢ deviation
+- "In Tune" when |centsDeviation| <= 3¢ (matches hardware green LED range)
+- Typical tuner range is ±50¢ (cent = 1/100 semitone)
 
 ## Usage Examples
 
