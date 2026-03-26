@@ -1,153 +1,174 @@
 
+# Boss CUBE Street II — SysEx Address Map
+# =========================================
+# All SysEx messages follow Roland format:
+#   f0 41 10 00 00 00 00 09 12 [addr4] [data...] [checksum] f7
+#
+# Below, only the 4-byte address and value range are listed.
+# Sample captured frames with checksums are preserved where available.
+#
+# Panel reference (from Roland Editor docs):
+#   MIC/INST channel: [HARMONY] knob = effect, [REVERB] knob = reverb
+#   GUITAR/MIC channel: [CHORUS/DELAY] knob = single shared knob for effect & delay
+#   Knobs can be reassigned to different functions via Editor app.
 
 
-# =====================MIXER===================
-f0 41 10 00 00 00 00 09 12 20 00 00 00 xx xx xx f7      mic/instrument (00 - 64)
-f0 41 10 00 00 00 00 09 12 20 00 00 01 xx xx xx f7      guitar/mic (00 - 64)
-f0 41 10 00 00 00 00 09 12 20 00 00 02 xx xx xx f7      i-cube link/aux/bluetooth (00 - 64)
-f0 41 10 00 00 00 00 09 12 20 00 00 03 xx xx xx f7      i-cube link out (00 - 64)
-f0 41 10 00 00 00 00 09 12 20 00 00 04 xx xx xx f7      master out (00 - 64)
+# ===================== MIXER (20 00 00 xx) ===================
 
-f0 41 10 00 00 00 00 09 12 00 00 00 10 xx xx xx f7      i-cube link loopback (00 - 01)
-f0 41 10 00 00 00 00 09 12 00 00 00 17 xx xx xx f7      USB Audio loopback (00 - 01)
+20 00 00 00  # Mic/Instrument volume (00 - 64)
+20 00 00 01  # Guitar/Mic volume (00 - 64)
+20 00 00 02  # i-CUBE LINK/AUX/Bluetooth volume (00 - 64)
+20 00 00 03  # i-CUBE LINK OUT volume (00 - 64)
+20 00 00 04  # Master Out volume (00 - 64)
 
 
-# ===================== MIC/INST EQUALIZER ===================
-f0 41 10 00 00 00 00 09 12 10 00 00 00 01 6f a5 f7      # type (00 - 03)
+# ===================== SYSTEM (00 00 00 xx) ===================
 
+00 00 00 04  # Foot SW1 Tip assign (00 - 05)
+00 00 00 05  # Foot SW1 Ring assign (00 - 05)
+00 00 00 06  # Foot SW2 Tip assign (00 - 05)
+00 00 00 07  # Foot SW2 Ring assign (00 - 05)
+00 00 00 0a  # Looper Rec Time (00=45s stereo, 01=90s mono)
+00 00 00 0b  # Looper Mic/Inst assign (00=disable, 01=enable)
+00 00 00 0c  # Looper Guitar/Mic assign (00=disable, 01=enable)
+00 00 00 0d  # Looper Reverb assign (00=disable, 01=enable)
+00 00 00 0e  # Looper i-CUBE LINK/AUX/BT assign (00=disable, 01=enable)
+00 00 00 10  # i-CUBE LINK loopback (00=off, 01=on)
+00 00 00 17  # USB Audio loopback (00=off, 01=on)
+
+
+# ===================== SYSTEM SIGNALS (7f xx xx xx) ===================
+
+7f 01 01 03  # TAP tempo? (seen during delay tap)
+7f 01 02 04  # Effect activate command (always followed by 7f 7f)
+
+
+# ===========================================================================
+#                    MIC/INST CHANNEL (10 00 00 00-35)
+# ===========================================================================
+
+# ===================== MIC/INST EQ ===================
+
+10 00 00 00  # EQ Type (00=EQ Off, 01=Speech, 02=Vocal, 03=Inst)
 
 # ===================== MIC/INST T.WAH ===================
 
-f0 41 10 00 00 00 00 09 12 10 00 00 26 00 4a ab f7      # mode (00 - 01)
-f0 41 10 00 00 00 00 09 12 10 00 00 27 00 49 cb f7      # polarity (00 - 01)
-f0 41 10 00 00 00 00 09 12 10 00 00 28 07 41 a3 f7      # sens (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 29 1a 2d f1 f7      # frequency (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 2a 19 2d 97 f7      # peak (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 2b 29 1c a7 f7      # twah level (00 - 64)
+10 00 00 26  # T.WAH Mode (00=LPF, 01=BPF)
+10 00 00 27  # T.WAH Polarity (00=Down, 01=Up)
+10 00 00 28  # T.WAH Sens (00 - 64)
+10 00 00 29  # T.WAH Frequency (00 - 64)
+10 00 00 2a  # T.WAH Peak (00 - 64)
+10 00 00 2b  # T.WAH Level (00 - 64)
 
-# ===================== MIC/INST REVERB ===================
+# ===================== REVERB (10 00 00 2c-35) ===================
+# Shared reverb unit — per-channel levels at 0x31 (Mic/Inst) and 0x67 (Guitar).
 
-f0 41 10 00 00 00 00 09 12 10 00 00 2d 01 42 b7 f7      # reverb type (00 - 02)
-f0 41 10 00 00 00 00 09 12 10 00 00 2e 19 29 86 f7      # reverb time s (00 - 31?)
-f0 41 10 00 00 00 00 09 12 10 00 00 2f 00 00 41 ad f7   # pre-delay ms (00 00 - 01 48?)
-f0 41 10 00 00 00 00 09 12 10 00 00 31 2d 12 e2 f7      # effect level (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 32 09 35 b8 f7      # low cut Hz (00 - 0c)
-f0 41 10 00 00 00 00 09 12 10 00 00 33 03 3a c9 f7      # high cut Hz (00 - 0a)
-f0 41 10 00 00 00 00 09 12 10 00 00 34 06 36 b8 f7      # density (00 - 0a)
-f0 41 10 00 00 00 00 09 12 10 00 00 35 00 3b fb f7      # knob assign function (00 - 01?)
+10 00 00 2d  # Reverb Type (00=Room, 01=Hall, 02=Plate)
+10 00 00 2e  # Reverb Time (00 - 31, maps to 0.1s - 5.0s)
+10 00 00 2f  # Reverb Pre-Delay (2 data bytes: 00 00 - 01 48, maps to 0ms - 200ms)
+10 00 00 31  # Mic/Inst Reverb Level (00 - 64)
+10 00 00 32  # Reverb Low Cut (00=Flat, 01-0C=50Hz-630Hz)
+10 00 00 33  # Reverb High Cut (00-09=1.6kHz-12.5kHz, 0A=Flat)
+10 00 00 34  # Reverb Density (00 - 0A)
+10 00 00 35  # Reverb Knob Assign (00=Rev Time, 01=FX Level)
 
-# ====================== GUITAR DELAY =================
 
-f0 41 10 00 00 00 00 09 12 10 00 00 60 01 0f e0 f7      # Delay type (00 - 03)
-f0 41 10 00 00 00 00 09 12 10 00 00 61 02 7c 11 8f f7   # delay time ms (00 00 - 07 47)
-
-f0 41 10 00 00 00 00 09 12 10 00 00 63 1a 73 83 f7      # feedback (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 64 06 06 e3 f7      # high cut (00 - 0E)
-
-f0 41 10 00 00 00 00 09 12 7f 01 01 03 01 7b e1 f7      # TAP?
-f0 41 10 00 00 00 00 09 12 7f 01 01 03 01 7b ab f7
-
-f0 41 10 00 00 00 00 09 12 10 00 00 65 02 09 8f f7      # effect level (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 66 01 09 d5 f7      # Knob asign function (00 - 03)
-
+# ===========================================================================
+#                    GUITAR/MIC CHANNEL (10 00 00 36-68)
+# ===========================================================================
 
 # ===================== GUITAR AMP TYPE ===================
 
-f0 41 10 00 00 00 00 09 12 10 00 00 36 01 39 ad f7      # clean (00 - 01)
-f0 41 10 00 00 00 00 09 12 10 00 00 37 01 38 c9 f7      # crunch type (00 - 01)
-f0 41 10 00 00 00 00 09 12 10 00 00 38 01 37 fb f7      # lead type (00 - 01)
+10 00 00 36  # Clean Amp Type (00=Type-A, 01=Type-B)
+10 00 00 37  # Crunch Amp Type (00=Type-A, 01=Type-B)
+10 00 00 38  # Lead Amp Type (00=Type-A, 01=Type-B)
+
+# ===================== GUITAR CHORUS/FX ===================
+# Controlled by [CHORUS/DELAY] knob on panel.
+
+10 00 00 39  # Guitar effect type selector
+             #   Used for switching: value 00=Chorus, 01=Phaser, 02=Flanger, 03=Tremolo, 04=T.WAH
+             #   Switch commands also send effect activate (7f 01 02 04 7f 7f)
+
+# ===================== GUITAR CHORUS (type 00) ===================
+
+10 00 00 3b  # Chorus Low Rate (00 - 64)
+10 00 00 3c  # Chorus Low Depth (00 - 64)
+10 00 00 3d  # Chorus Low Pre Delay (00 - 64)
+10 00 00 3e  # Chorus Low Level (00 - 64)
+10 00 00 3f  # Chorus Direct Mix (00 - 64)
+10 00 00 40  # Chorus High Rate (00 - 64)
+10 00 00 41  # Chorus High Depth (00 - 64)
+10 00 00 42  # Chorus High Pre Delay (00 - 64)
+10 00 00 43  # Chorus High Level (00 - 64)
+10 00 00 44  # Chorus Xover Frequency (00 - 10)
+
+# ===================== GUITAR PHASER (type 01) ===================
+
+10 00 00 46  # Phaser Type (00 - 03)
+10 00 00 47  # Phaser Rate (00 - 64)
+10 00 00 48  # Phaser Depth (00 - 64)
+10 00 00 49  # Phaser Resonance (00 - 64)
+10 00 00 4a  # Phaser Manual (00 - 64)
+10 00 00 4b  # Phaser Level (00 - 64)
+
+# ===================== GUITAR FLANGER (type 02) ===================
+
+10 00 00 4d  # Flanger Rate (00 - 64)
+10 00 00 4e  # Flanger Depth (00 - 64)
+10 00 00 4f  # Flanger Resonance (00 - 64)
+10 00 00 50  # Flanger Manual (00 - 64)
+10 00 00 51  # Flanger Level (00 - 64)
+10 00 00 52  # Flanger Low Cut (00 - ??)
+
+# ===================== GUITAR TREMOLO (type 03) ===================
+
+10 00 00 54  # Tremolo Wave Shape (00 - 64)
+10 00 00 55  # Tremolo Rate (00 - 64)
+10 00 00 56  # Tremolo Depth (00 - 64)
+10 00 00 57  # Tremolo Level (00 - 64)
+
+# ===================== GUITAR T.WAH (type 04) ===================
+
+10 00 00 59  # T.WAH Mode (00 - 01)
+10 00 00 5a  # T.WAH Polarity (00 - 01)
+10 00 00 5b  # T.WAH Sens (00 - 64)
+10 00 00 5c  # T.WAH Frequency (00 - 64)
+10 00 00 5d  # T.WAH Peak (00 - 64)
+10 00 00 5e  # T.WAH Level (00 - 64)
+
+# ===================== GUITAR DELAY ===================
+
+10 00 00 60  # Delay Type (00=Digital, 01=Reverse, 02=Analog, 03=Tape Echo)
+10 00 00 61  # Delay Time (2 data bytes: 00 00 - 07 47, maps to 1ms - 1000ms)
+10 00 00 63  # Delay Feedback (00 - 64)
+10 00 00 64  # Delay High Cut (00 - 0E)
+10 00 00 65  # Delay Effect Level (00 - 64)
+10 00 00 66  # Delay Knob Assign (00 - 03)
+
+# ===================== GUITAR REVERB ===================
+
+10 00 00 67  # Guitar Reverb Level (00 - 64)
 
 
-# ===================== GUITAR FLANGER ===================
+# ===========================================================================
+#                    EFFECT SWITCH CAPTURED FRAMES
+# ===========================================================================
+# These are full SysEx frames captured during effect switching.
+# Address 10 00 00 39 = effect type selector, followed by activate command.
 
-f0 41 10 00 00 00 00 09 12 10 00 00 4d 32 71 97 f7      # rate
-f0 41 10 00 00 00 00 09 12 10 00 00 4e 20 02 e5 f7      # depth
-f0 41 10 00 00 00 00 09 12 10 00 00 4f 2a 77 d3 f7      # resonance
-f0 41 10 00 00 00 00 09 12 10 00 00 50 4a 56 c9 f7      # manual
-f0 41 10 00 00 00 00 09 12 10 00 00 51 2a 75 f4 f7      # level
-f0 41 10 00 00 00 00 09 12 10 00 00 52 02 1c b9 f7      # low cut
+# Switch to chorus:
+# f0 41 10 00 00 00 00 09 12 10 00 00 39 00 37 8d f7
+# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c 97 f7
 
+# Switch to phaser:
+# f0 41 10 00 00 00 00 09 12 10 00 00 39 01 36 e4 f7
+# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c f1 f7
 
-# ===================== GUITAR PHASER ===================
+# Switch to tremolo:
+# f0 41 10 00 00 00 00 09 12 10 00 00 39 03 34 f8 f7
+# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c fe f7
 
-f0 41 10 00 00 00 00 09 12 10 00 00 39 01 36 e4 f7      # Switch to phaser
-f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c f1 f7
-
-f0 41 10 00 00 00 00 09 12 10 00 00 47 5b 4e 89 f7      # rate
-f0 41 10 00 00 00 00 09 12 10 00 00 48 20 08 9a f7      # depth
-f0 41 10 00 00 00 00 09 12 10 00 00 49 02 25 f3 f7      # resonance
-
-f0 41 10 00 00 00 00 09 12 10 00 00 4a 41 65 f6 f7      # manual
-f0 41 10 00 00 00 00 09 12 10 00 00 4b 3a 6b d7 f7      # level
-
-f0 41 10 00 00 00 00 09 12 10 00 00 46 01 29 c7 f7      # type (00 - 03)
-
-
-# ===================== GUITAR CHORUS ===================
-
-f0 41 10 00 00 00 00 09 12 10 00 00 39 00 37 8d f7      # Switch to chorus
-f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c 97 f7
-
-f0 41 10 00 00 00 00 09 12 10 00 00 3b 1b 1a d1 f7      # low rate
-f0 41 10 00 00 00 00 09 12 10 00 00 3c 28 0c c3 f7      # low depth
-f0 41 10 00 00 00 00 09 12 10 00 00 3d 09 2a b5 f7      # low pre delay
-f0 41 10 00 00 00 00 09 12 10 00 00 3e 52 60 96 f7      # low level
-f0 41 10 00 00 00 00 09 12 10 00 00 3f 15 1c e1 f7      # direct mix
-
-f0 41 10 00 00 00 00 09 12 10 00 00 40 1b 15 d5 f7      # high rate
-f0 41 10 00 00 00 00 09 12 10 00 00 41 06 29 e6 f7      # high depth
-f0 41 10 00 00 00 00 09 12 10 00 00 42 0a 24 83 f7      # high pre delay
-f0 41 10 00 00 00 00 09 12 10 00 00 43 52 5b e7 f7      # high level (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 44 0c 20 eb f7      # xover frequency (00 - 10)
-
-
-# ===================== GUITAR TREMOLO ===================
-
-f0 41 10 00 00 00 00 09 12 10 00 00 39 03 34 f8 f7      # Switch to tremolo
-f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c fe f7
-
-f0 41 10 00 00 00 00 09 12 10 00 00 54 3e 5e b5 f7      # wave shape (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 55 4e 4d af f7      # rate (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 56 37 63 ac f7      # depth (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 57 2a 6f e5 f7      # level (00 - 64)
-
-
-# ===================== GUITAR T.WAH ===================
-
-f0 41 10 00 00 00 00 09 12 10 00 00 39 04 33 c4 f7      # Switch to T.WAH
-f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c cd f7
-
-f0 41 10 00 00 00 00 09 12 10 00 00 59 00 17 a6 f7      # Mode (00 - 01)
-f0 41 10 00 00 00 00 09 12 10 00 00 5a 00 16 ea f7      # Polarity (00 - 01)
-f0 41 10 00 00 00 00 09 12 10 00 00 5b 2a 6b c9 f7      # Sens (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 5c 19 7b ba f7      # Frequency (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 5d 1a 79 f9 f7      # Peak (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 5e 29 69 ac f7      # Level (00 - 64)
-
-
-# ===================== GUIETAR REVERB ==================
-f0 41 10 00 00 00 00 09 12 10 00 00 2e 19 29 c2 f7      # time (s) (00 - 31)
-f0 41 10 00 00 00 00 09 12 10 00 00 2f 00 00 41 92 f7   # pre delay (ms) (00 00 - 01 48)
-f0 41 10 00 00 00 00 09 12 10 00 00 67 25 64 8f f7      # effect level (00 - 64)
-f0 41 10 00 00 00 00 09 12 10 00 00 32 09 35 9c f7      # low cut (Hz) (00 - 0c)
-f0 41 10 00 00 00 00 09 12 10 00 00 33 03 3a b1 f7      # high cut (Hz) (00 - 0a)
-f0 41 10 00 00 00 00 09 12 10 00 00 34 06 36 a5 f7      # density (00 - 0a)
-f0 41 10 00 00 00 00 09 12 10 00 00 35 00 3b 84 f7      # knob assign function (00 - 01)
-f0 41 10 00 00 00 00 09 12 10 00 00 2d 01 42 ad f7      # type (00 - 02)
-
-
-# ==================== FOOT SWITCH CTRL ASSIGN =====================
-
-f0 41 10 00 00 00 00 09 12 00 00 00 04 01 7b fc f7      # sw1-tip (00 - 05)
-f0 41 10 00 00 00 00 09 12 00 00 00 05 00 7b ab f7      # sw1-ring (00 - 05)
-f0 41 10 00 00 00 00 09 12 00 00 00 06 00 7a b5 f7      # sw2-tip (00 - 05)
-f0 41 10 00 00 00 00 09 12 00 00 00 07 00 79 c0 f7      # sw2-ring (00 - 05)
-
-
-# ==================== LOOPER SETTINGS ============================
-
-f0 41 10 00 00 00 00 09 12 00 00 00 0a 01 75 d4 f7      # Rec time (00 - 01)
-f0 41 10 00 00 00 00 09 12 00 00 00 0b 01 74 b4 f7      # mic/instrument assign (00 - 01)
-f0 41 10 00 00 00 00 09 12 00 00 00 0c 01 73 e8 f7      # guitar/mic assign (00 - 01)
-f0 41 10 00 00 00 00 09 12 00 00 00 0d 01 72 d1 f7      # reverb assign (00 - 01)
-f0 41 10 00 00 00 00 09 12 00 00 00 0e 01 71 8b f7      # i-cube link/aux/bluetooth assign (00 - 01)
+# Switch to T.WAH:
+# f0 41 10 00 00 00 00 09 12 10 00 00 39 04 33 c4 f7
+# f0 41 10 00 00 00 00 09 12 7f 01 02 04 7f 7f 7c cd f7
